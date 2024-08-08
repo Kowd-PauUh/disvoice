@@ -9,6 +9,6 @@ services:
         environment:
             - "PROJECT_DIR=${PROJECT_DIR}"
         ports:
-            - "8511:8000"  # jupyter port
+            - "8512:8000"  # jupyter port
         volumes:
             - ${PROJECT_DIR}:${PROJECT_DIR}
