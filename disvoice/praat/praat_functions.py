@@ -4,9 +4,10 @@ import sys
 import subprocess
 
 import numpy as np
+
+
 PATH = os.path.dirname(os.path.realpath(__file__))
 
-# sys.path.append(PATH)
 
 def multi_find(s, r):
 	"""
@@ -38,7 +39,6 @@ def run_praat_script(script_name, arguments):
     try:
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         result.check_returncode()
-        print("Praat execution succeded.")
     except subprocess.CalledProcessError as e:
         print(f"Error executing Praat script {script_name}: {e.stderr.decode()}")
     except FileNotFoundError:
@@ -138,6 +138,7 @@ def read_textgrid_trans(file_textgrid, data_audio, fs, win_trans=0.04):
 			prev_line=line
 	return segments,segments_onset,segments_offset
 
+
 def decodeF0(fileTxt,len_signal=0, time_stepF0=0):
 	"""
 	Reads the content of a pitch file created with praat_vuv function.
@@ -175,6 +176,7 @@ def decodeF0(fileTxt,len_signal=0, time_stepF0=0):
 			pitch_zeros[argmin]=pitch
 		return pitch_zeros, t
 	return pitch, time_voiced
+
 
 def decodeFormants(fileTxt):
 	"""
