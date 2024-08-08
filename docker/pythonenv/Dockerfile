@@ -7,13 +7,8 @@ COPY docker/pythonenv/requirements.txt /
 
 COPY audios/ ${PROJECT_DIR}/audios/
 COPY disvoice/ ${PROJECT_DIR}/disvoice/
-COPY docs/ ${PROJECT_DIR}/docs/
-COPY images/ ${PROJECT_DIR}/images/
-COPY notebooks_examples/ ${PROJECT_DIR}/notebooks_examples/
-COPY tests/ ${PROJECT_DIR}/tests/
+COPY notebooks/ ${PROJECT_DIR}/notebooks_examples/
 
-COPY install.sh/ ${PROJECT_DIR}/install.sh
-COPY requirements.txt/ ${PROJECT_DIR}/requirements.txt
 COPY setup.cfg/ ${PROJECT_DIR}/setup.cfg
 COPY setup.py/ ${PROJECT_DIR}/setup.py
 
