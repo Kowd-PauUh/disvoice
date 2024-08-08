@@ -1,8 +1,5 @@
 ## Articulation features
 
-```sh
-articulation.py
-```
 Compute articulation features from continuous speech.
 
 122 descriptors are computed:
@@ -30,61 +27,11 @@ In addition, static (for all utterance) or dynamic (at-frame level) features can
 
 The first two frames of each recording are not considered for dynamic analysis to be able to stack the derivatives of MFCCs
 
-#### Notes:
+#### Notes
+
 1. The fundamental frequency is computed the PRAAT algorithm. To use the RAPT method,  change the "self.pitch method" variable in the class constructor.
 
 2. The formant frequencies are computed using Praat
-
-
-#### Running
-Script is called as follows
-
-```sh
-python articulation.py <file_or_folder_audio> <file_features> <static (true or false)> <plots (true or false)> <format (csv, txt, npy, kaldi, torch)>
-```
-
-#### Examples:
-
-Extract features in the command line
-```sh
-
-python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulationfeaturesAst.txt" "true" "true" "txt"
-python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulationfeaturesUst.csv" "true" "true" "csv"
-python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulationfeaturesUdyn.pt" "false" "true" "torch"
-
-python articulation.py "../audios/" "articulationfeaturesst.txt" "true" "false" "txt"
-python articulation.py "../audios/" "articulationfeaturesst.csv" "true" "false" "csv"
-python articulation.py "../audios/" "articulationfeaturesdyn.pt" "false" "false" "torch"
-python articulation.py "../audios/" "articulationfeaturesdyn.csv" "false" "false" "csv"
-
-KALDI_ROOT=/home/camilo/Camilo/codes/kaldi-master2
-export PATH=$PATH:$KALDI_ROOT/src/featbin/
-python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulationfeaturesUdyn" "false" "false" "kaldi"
-
-python articulation.py "../audios/" "articulationfeaturesdyn" "false" "false" "kaldi"
-```
-
-Extract features directly in Python
-```python
-from articulation import Articulation
-articulation=Articulation()
-file_audio="../audios/001_ddk1_PCGITA.wav"
-features1=articulation.extract_features_file(file_audio, static=True, plots=True, fmt="npy")
-features2=articulation.extract_features_file(file_audio, static=True, plots=True, fmt="dataframe")
-features3=articulation.extract_features_file(file_audio, static=False, plots=True, fmt="torch")
-articulation.extract_features_file(file_audio, static=False, plots=False, fmt="kaldi", kaldi_file="./test")
-```
-
-[Jupyter notebook](https://github.com/jcvasquezc/DisVoice/blob/master/notebooks_examples/articulation_features.ipynb)
-
-#### Results:
-
-Articulation analysis from continuous speech
-![Image](https://github.com/jcvasquezc/DisVoice/blob/master/images/articulation_continuousFormants.png?raw=True)
-
-
-![Image](https://github.com/jcvasquezc/DisVoice/blob/master/images/articulation_transition.png?raw=True)
-
 
 #### References
 
