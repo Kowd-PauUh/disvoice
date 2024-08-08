@@ -42,33 +42,27 @@ class Articulation:
     Dynamic matrix are formed with the 58 descriptors (22 BBEs, 12 MFCC, 12DMFCC, 12 DDMFCC ) computed for frames of 40 ms with a time-shift of 20 ms in onset transitions.
     The first two frames of each recording are not considered for dynamic analysis to be able to stack the derivatives of MFCCs
 
-
-    Notes:
+    Notes
+    -----
     1. The first two frames of each recording are not considered for dynamic analysis to be able to stack the derivatives of MFCCs
     2. The fundamental frequency is computed the PRAAT algorithm. To use the RAPT method,  change the "self.pitch method" variable in the class constructor.
 
-    Script is called as follows
-
-    >>> python articulation.py <file_or_folder_audio> <file_features> <static (true or false)> <plots (true or false)> <format (csv, txt, npy, kaldi, torch)>
-
-    Examples command line:
-
-    >>> python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulation_featuresDDKst.txt" "true" "true" txt
-    >>> python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulation_featuresDDKst.csv" "true" "true" csv
-    >>> python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulation_featuresDDKst.pt" "true" "true" torch
-    >>> python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulation_featuresDDKdyn.txt" "false" "true" txt
-    >>> python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulation_featuresDDKdyn.csv" "false" "true" csv
-    >>> python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulation_featuresDDKdyn.pt" "false" "true" torch
-    
-    Examples directly in Python
-
-    >>> articulation=Articulation()
-    >>> file_audio="../audios/001_ddk1_PCGITA.wav"
-    >>> features1=articulation.extract_features_file(file_audio, static=True, plots=True, fmt="npy")
-    >>> features2=articulation.extract_features_file(file_audio, static=True, plots=True, fmt="dataframe")
-    >>> features3=articulation.extract_features_file(file_audio, static=False, plots=True, fmt="torch")
-    >>> articulation.extract_features_file(file_audio, static=False, plots=False, fmt="kaldi", kaldi_file="./test")
-
+    Examples
+    --------
+    >>> articulation = Articulation()
+    >>> file_audio = "../audios/OSR_us_000_0030_8k.wav"
+    >>> features_static = articulation.extract_features_file(
+    ...     file_audio, 
+    ...     static=True, 
+    ...     plots=False, 
+    ...     fmt="npy"
+    ... )
+    >>> features_dynamic = articulation.extract_features_file(
+    ...     file_audio, 
+    ...     static=False, 
+    ...     plots=False, 
+    ...     fmt="npy"
+    ... )
     """
 
     def __init__(self):
