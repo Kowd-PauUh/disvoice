@@ -1,59 +1,26 @@
 # DisVoice
 
-[![Documentation Status](https://readthedocs.org/projects/disvoice/badge/?version=latest)](https://disvoice.readthedocs.io/en/latest/?badge=latest)
+It's a fixed version of [DisVoice](https://github.com/jcvasquezc/DisVoice) package, compatible with the latest versions of its dependencies and applied code refactoring where necessary. 
 
-![Image](https://github.com/jcvasquezc/DisVoice/blob/master/docs/logos/disvoice_logo.png?raw=true)
-
-DisVoice is a python framework designed to compute features from speech files. Disvoice computes glottal, phonation, articulation, prosody, phonological, and features representation learnig strategies using autoencders. The features can be computed both from sustained vowels and continuous speech utterances with the aim to recognize praliguistic aspects from speech.
+DisVoice is a python package designed to compute features from speech files. Disvoice computes glottal, phonation, articulation, prosody, phonological, and features representation learnig strategies using autoencders. The features can be computed both from sustained vowels and continuous speech utterances with the aim to recognize praliguistic aspects from speech.
 
 The features can be used in classifiers to recognize emotions, or communication capabilities of patients with different speech disorders including diseases with functional origin such as larinx cancer or nodules; craneo-facial based disorders such as hipernasality developed by cleft-lip and palate; or neurodegenerative disorders such as Parkinson's or Hungtinton's diseases.
 
 The features are also suitable to evaluate mood problems like depression based on speech patterns.
 
-For additional details about each feature type, and how to use DisVoice, please check
-
-- [glottal](https://github.com/jcvasquezc/DisVoice/tree/master/disvoice/glottal)
-- [phonation](https://github.com/jcvasquezc/DisVoice/tree/master/disvoice/phonation)
-- [articulaton](https://github.com/jcvasquezc/DisVoice/tree/master/disvoice/articulation)
-- [prosody](https://github.com/jcvasquezc/DisVoice/tree/master/disvoice/prosody) 
-- [phonological](https://github.com/jcvasquezc/DisVoice/tree/master/disvoice/phonological)
-- [Representation learning](https://github.com/jcvasquezc/DisVoice/tree/master/disvoice/replearning)
-
-
 ### Install
-
-Praat should be installed first, and the executable file should be added as an environmental variable. 
-
-For linux
 
 ```
 apt-get install praat
-pip install disvoice
+pip install git+https://gitlab.com/Kowd-PauUh/disvoice.git
 ```
-
-or
-
-```python setup.py install```
-
-For Windows
-
-Donwload the latest version of Praat from https://www.fon.hum.uva.nl/praat/download_win.html
-
-and add the path file to the environment variables
-
-Then
+alternatively you can clone this repository in case you need to change something and install it in editable mod via 
 
 ```
-pip install disvoice
+git clone https://gitlab.com/Kowd-PauUh/disvoice.git kowd-pauuh-disvoice
+cd kowd-pauuh-disvoice
+pip install -e .
 ```
-
-or
-
-```python setup.py install```
-
-
-
-Kaldi must be installed beforehand for Kaldi output  
 
 ## Reference
 
@@ -62,7 +29,6 @@ If you use Disvoice for research purposes, please cite the following papers, dep
 ## Glottal features
 
 [1] Belalcázar-Bolaños, E. A., Orozco-Arroyave, J. R., Vargas-Bonilla, J. F., Haderlein, T., & Nöth, E. (2016, September). Glottal Flow Patterns Analyses for Parkinson’s Disease Detection: Acoustic and Nonlinear Approaches. In International Conference on Text, Speech, and Dialogue (pp. 400-407). Springer.
-
 
 ## Phonation features
 
@@ -89,9 +55,3 @@ If you use Disvoice for research purposes, please cite the following papers, dep
 ## Representaton learning-based features
 
 [1] Vasquez-Correa, J. C., et al. (2020). Parallel Representation Learning for the Classification of Pathological Speech: Studies on Parkinson’s Disease and Cleft Lip and Palate. Speech Communication, 122, 56-67.
-
-
-License
-----
-
-MIT
