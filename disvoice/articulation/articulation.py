@@ -1,6 +1,6 @@
-from scipy.io.wavfile import read
 import os
 import sys
+
 import numpy as np
 import matplotlib.pyplot as plt
 plt.rcParams["font.family"] = "Times New Roman"
@@ -9,11 +9,11 @@ import pysptk
 import pandas as pd
 import torch
 from tqdm import tqdm
+from scipy.io.wavfile import read
 
 import disvoice.praat.praat_functions as praat_functions
 from disvoice.script_mananger import script_manager
 from articulation_functions import extract_transitions, get_transition_segments
-
 from utils import dynamic2statict_artic, save_dict_kaldimat, get_dict, fill_when_empty
 
 
@@ -49,7 +49,7 @@ class Articulation:
 
     Examples
     --------
-    >>> articulation = Articulation()
+    >>> articulation = Articulation(temp_dir='/tmp/disvoice_tempfiles')
     >>> file_audio = "../audios/OSR_us_000_0030_8k.wav"
     >>> features_static = articulation.extract_features_file(
     ...     file_audio, 
@@ -65,7 +65,7 @@ class Articulation:
     ... )
     """
 
-    def __init__(self):
+    def __init__(self, temp_dir):
         self.pitch_method="rapt"
         self.sizeframe=0.04
         self.step=0.02
@@ -92,8 +92,7 @@ class Articulation:
         for k in ["avg", "std", "skewness", "kurtosis"]:
             for h in self.head:
                 self.head_st.append(k+" "+h)
-        if not os.path.exists(PATH+'/../../tempfiles/'):
-            os.makedirs(PATH+'/../../tempfiles/')
+        self.temp_dir = temp_dir
 
     def plot_art(self, data_audio,fs,F0,F1,F2,segmentsOn,segmentsOff):
         """Plots of the articulation features
@@ -257,7 +256,7 @@ class Articulation:
         name_audio=audio.split('/')
         temp_uuid='artic'+name_audio[-1][0:-4]
 
-        temp_filename=PATH+'/../../tempfiles/tempFormants'+temp_uuid+'.txt'
+        temp_filename=self.temp_dir+'/tempFormants'+temp_uuid+'.txt'
         praat_functions.praat_formants(audio, temp_filename,self.sizeframe,self.step)
         [F1, F2]=praat_functions.decodeFormants(temp_filename)
         os.remove(temp_filename)
@@ -331,8 +330,8 @@ class Articulation:
         if self.pitch_method == 'praat':
             name_audio=audio.split('/')
             temp_uuid='articulation'+name_audio[-1][0:-4]
-            temp_filename_vuv=PATH+'/../../tempfiles/tempVUV'+temp_uuid+'.txt'
-            temp_filename_f0=PATH+'/../../tempfiles/tempF0'+temp_uuid+'.txt'
+            temp_filename_vuv=self.temp_dir + '/tempVUV'+temp_uuid+'.txt'
+            temp_filename_f0=self.temp_dir + '/tempF0'+temp_uuid+'.txt'
             praat_functions.praat_vuv(audio, temp_filename_f0, temp_filename_vuv, time_stepF0=self.step, minf0=self.minf0, maxf0=self.maxf0)
             F0,_=praat_functions.decodeF0(temp_filename_f0,len(data_audio)/float(fs),self.step)
             segmentsFull,segmentsOn,segmentsOff=praat_functions.read_textgrid_trans(temp_filename_vuv,data_audio,fs,self.sizeframe)
