@@ -23,7 +23,6 @@ PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(PATH+'/../')
 sys.path.append(PATH)
 
-plt.rcParams["font.family"] = "Times New Roman"
 from prosody_functions import V_UV, F0feat, energy_cont_segm, polyf0, energy_feat, dur_seg, duration_feat, get_energy_segment
 
 from script_mananger import script_manager
