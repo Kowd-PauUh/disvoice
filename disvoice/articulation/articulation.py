@@ -64,7 +64,6 @@ class Articulation:
     ...     fmt="npy"
     ... )
     """
-
     def __init__(self, temp_dir):
         self.pitch_method="rapt"
         self.sizeframe=0.04
