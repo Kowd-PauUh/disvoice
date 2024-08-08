@@ -73,10 +73,6 @@ If you use Disvoice for research purposes, please cite the following papers, dep
 
 [2] Vásquez-Correa, J. C., et al. "Towards an automatic evaluation of the dysarthria level of patients with Parkinson's disease." Journal of communication disorders 76 (2018): 21-36.
 
-## Phonological features
-
-[1] Vásquez-Correa, J. C., et al (2019). Phonet: a Tool Based on Gated Recurrent Neural Networks to Extract Phonological Posteriors from Speech. Proc. Interspeech 2019, 549-553.
-
 ## Representaton learning-based features
 
 [1] Vasquez-Correa, J. C., et al. (2020). Parallel Representation Learning for the Classification of Pathological Speech: Studies on Parkinson’s Disease and Cleft Lip and Palate. Speech Communication, 122, 56-67.
