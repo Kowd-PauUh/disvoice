@@ -1,11 +1,3 @@
-
-# -*- coding: utf-8 -*-
-"""
-Created on Jul 21 2017
-
-@author: J. C. Vasquez-Correa
-"""
-
 from scipy.io.wavfile import read
 import os
 import sys
@@ -17,9 +9,7 @@ import pysptk
 import pandas as pd
 import torch
 from tqdm import tqdm
-# PATH = os.path.dirname(os.path.realpath(__file__))
-# sys.path.append(os.path.join(PATH, '..'))
-# sys.path.append(PATH)
+
 import disvoice.praat.praat_functions as praat_functions
 from disvoice.script_mananger import script_manager
 from articulation_functions import extract_transitions, get_transition_segments
@@ -27,49 +17,29 @@ from articulation_functions import extract_transitions, get_transition_segments
 from utils import dynamic2statict_artic, save_dict_kaldimat, get_dict, fill_when_empty
 
 
-
-
 class Articulation:
     """
-
     Compute articulation features from continuous speech.
 
     122 descriptors are computed:
-
     1-22. Bark band energies in onset transitions (22 BBE).
-
     23-34. Mel frequency cepstral coefficients in onset transitions (12 MFCC onset)
-
     35-46. First derivative of the MFCCs in onset transitions (12 DMFCC onset)
-
     47-58. Second derivative of the MFCCs in onset transitions (12 DDMFCC onset)
-
     59-80. Bark band energies in offset transitions (22 BBE).
-
     81-92. MFCCC in offset transitions (12 MFCC offset)
-
     93-104. First derivative of the MFCCs in offset transitions (12 DMFCC offset)
-
     105-116. Second derivative of the MFCCs in offset transitions (12 DMFCC offset)
-
     117. First formant Frequency
-
     118. First Derivative of the first formant frequency
-
     119. Second Derivative of the first formant frequency
-
     120. Second formant Frequency
-
     121. First derivative of the Second formant Frequency
-
     122. Second derivative of the Second formant Frequency
 
     Static or dynamic matrices can be computed:
-    
     Static matrix is formed with 488 features formed with (122 descriptors) x (4 functionals: mean, std, skewness, kurtosis)
-    
     Dynamic matrix are formed with the 58 descriptors (22 BBEs, 12 MFCC, 12DMFCC, 12 DDMFCC ) computed for frames of 40 ms with a time-shift of 20 ms in onset transitions.
-
     The first two frames of each recording are not considered for dynamic analysis to be able to stack the derivatives of MFCCs
 
 
