@@ -45,7 +45,9 @@ cd kowd-pauuh-disvoice
 pip install -e .
 ```
 
-## Reference
+## References
+
+Sample audio `audios/OSR_us_000_0030_8k.wav` is taken from the Open Speech Repository.
 
 If you use Disvoice for research purposes, please cite the following papers, depending on the features you use:
 
