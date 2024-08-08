@@ -17,9 +17,9 @@ import pysptk
 import pandas as pd
 import torch
 from tqdm import tqdm
-PATH = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(PATH, '..'))
-sys.path.append(PATH)
+# PATH = os.path.dirname(os.path.realpath(__file__))
+# sys.path.append(os.path.join(PATH, '..'))
+# sys.path.append(PATH)
 import disvoice.praat.praat_functions as praat_functions
 from disvoice.script_mananger import script_manager
 from articulation_functions import extract_transitions, get_transition_segments
@@ -441,13 +441,3 @@ class Articulation:
         if fmt=="kaldi":
             dictX=get_dict(Features, ids)
             save_dict_kaldimat(dictX, kaldi_file)
-
-
-if __name__=="__main__":
-
-    if len(sys.argv)!=6:
-        print("python articulation.py <file_or_folder_audio> <file_features> <static (true, false)> <plots (true,  false)> <format (csv, txt, npy, kaldi, torch)>")
-        sys.exit()
-
-    articulation=Articulation()
-    script_manager(sys.argv, articulation)
