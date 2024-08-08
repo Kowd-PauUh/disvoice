@@ -1,20 +1,19 @@
 import os
 import sys
 
+from tqdm import tqdm
+import pandas as pd
 import numpy as np
+from scipy.io.wavfile import read
 import matplotlib.pyplot as plt
-plt.rcParams["font.family"] = "Times New Roman"
 import matplotlib.mlab as mlab
 import pysptk
-import pandas as pd
 import torch
-from tqdm import tqdm
-from scipy.io.wavfile import read
 
 import disvoice.praat.praat_functions as praat_functions
 from disvoice.script_mananger import script_manager
-from articulation_functions import extract_transitions, get_transition_segments
-from utils import dynamic2statict_artic, save_dict_kaldimat, get_dict, fill_when_empty
+from disvoice.articulation.articulation_functions import extract_transitions, get_transition_segments
+from disvoice.utils import dynamic2statict_artic, save_dict_kaldimat, get_dict, fill_when_empty
 
 
 class Articulation:
