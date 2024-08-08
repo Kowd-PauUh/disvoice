@@ -1,12 +1,5 @@
-
-# -*- coding: utf-8 -*-
-"""
-Created on Jul 21 2017, Modified Apr 10 2018.
-
-@author: J. C. Vasquez-Correa, T. Arias-Vergara, J. S. Guerrero
-"""
-
-
+import os
+import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,18 +9,13 @@ import pandas as pd
 import pysptk
 from matplotlib import cm
 from scipy.io.wavfile import read
-import os
-import sys
-PATH = os.path.dirname(os.path.realpath(__file__))
 
-sys.path.append(PATH+'/../')
-sys.path.append(PATH)
+from disvoice.prosody.prosody_functions import V_UV, F0feat, energy_cont_segm, polyf0, energy_feat, dur_seg, duration_feat, get_energy_segment
+from disvoice.script_mananger import script_manager
+from disvoice.utils import save_dict_kaldimat, get_dict
+import disvoice.praat.praat_functions as praat_functions
 
-from prosody_functions import V_UV, F0feat, energy_cont_segm, polyf0, energy_feat, dur_seg, duration_feat, get_energy_segment
 
-from script_mananger import script_manager
-from utils import save_dict_kaldimat, get_dict
-import praat.praat_functions as praat_functions
 class Prosody:
     """
     Compute prosody features from continuous speech based on duration, fundamental frequency and energy.
@@ -35,90 +23,53 @@ class Prosody:
     Static matrix is formed with 103 features and include
 
     1-6     F0-contour:                                                       Avg., Std., Max., Min., Skewness, Kurtosis
-
     7-12    Tilt of a linear estimation of F0 for each voiced segment:        Avg., Std., Max., Min., Skewness, Kurtosis
-
     13-18   MSE of a linear estimation of F0 for each voiced segment:         Avg., Std., Max., Min., Skewness, Kurtosis
-
     19-24   F0 on the first voiced segment:                                   Avg., Std., Max., Min., Skewness, Kurtosis
-
     25-30   F0 on the last voiced segment:                                    Avg., Std., Max., Min., Skewness, Kurtosis
-
     31-34   energy-contour for voiced segments:                               Avg., Std., Skewness, Kurtosis
-
     35-38   Tilt of a linear estimation of energy contour for V segments:     Avg., Std., Skewness, Kurtosis
-
     39-42   MSE of a linear estimation of energy contour for V segment:       Avg., Std., Skewness, Kurtosis
-
     43-48   energy on the first voiced segment:                               Avg., Std., Max., Min., Skewness, Kurtosis
-
     49-54   energy on the last voiced segment:                                Avg., Std., Max., Min., Skewness, Kurtosis
-
     55-58   energy-contour for unvoiced segments:                             Avg., Std., Skewness, Kurtosis
-
     59-62   Tilt of a linear estimation of energy contour for U segments:     Avg., Std., Skewness, Kurtosis
-
     63-66   MSE of a linear estimation of energy contour for U segments:      Avg., Std., Skewness, Kurtosis
-
     67-72   energy on the first unvoiced segment:                             Avg., Std., Max., Min., Skewness, Kurtosis
-
     73-78   energy on the last unvoiced segment:                              Avg., Std., Max., Min., Skewness, Kurtosis
-
     79      Voiced rate:                                                      Number of voiced segments per second
-
     80-85   Duration of Voiced:                                               Avg., Std., Max., Min., Skewness, Kurtosis
-
     86-91   Duration of Unvoiced:                                             Avg., Std., Max., Min., Skewness, Kurtosis
-
     92-97   Duration of Pauses:                                               Avg., Std., Max., Min., Skewness, Kurtosis
-
     98-103  Duration ratios:                                                 Pause/(Voiced+Unvoiced), Pause/Unvoiced, Unvoiced/(Voiced+Unvoiced),Voiced/(Voiced+Unvoiced), Voiced/Puase, Unvoiced/Pause
 
     Dynamic matrix is formed with 13 features computed for each voiced segment and contains
 
-
     1-6. Coefficients of 5-degree Lagrange polynomial to model F0 contour
-
     7-12. Coefficients of 5-degree Lagrange polynomial to model energy contour
-
     13. Duration of the voiced segment
 
     Dynamic prosody features are based on
     Najim Dehak, "Modeling Prosodic Features With Joint Factor Analysis for Speaker Verification", 2007
 
-    Script is called as follows
-
-    >>> python prosody.py <file_or_folder_audio> <file_features> <static (true or false)> <plots (true or false)> <format (csv, txt, npy, kaldi, torch)>
-
-    Examples command line:
-
-    >>> python Prosody.py "../audios/001_ddk1_PCGITA.wav" "prosodyfeaturesAst.txt" "true" "true" "txt"
-    >>> python Prosody.py "../audios/001_ddk1_PCGITA.wav" "prosodyfeaturesUst.csv" "true" "true" "csv"
-    >>> python prosody.py "../audios/001_ddk1_PCGITA.wav" "prosodyfeaturesUdyn.pt" "false" "true" "torch"
-
-    >>> python Prosody.py "../audios/" "prosodyfeaturesst.txt" "true" "false" "txt"
-    >>> python Prosody.py "../audios/" "prosodyfeaturesst.csv" "true" "false" "csv"
-    >>> python Prosody.py "../audios/" "prosodyfeaturesdyn.pt" "false" "false" "torch"
-    >>> python Prosody.py "../audios/" "prosodyfeaturesdyn.csv" "false" "false" "csv"
-
-    Examples directly in Python
-
-    >>> prosody=Prosody()
-    >>> file_audio="../audios/001_ddk1_PCGITA.wav"
-    >>> features1=prosody.extract_features_file(file_audio, static=True, plots=True, fmt="npy")
-    >>> features2=prosody.extract_features_file(file_audio, static=True, plots=True, fmt="dataframe")
-    >>> features3=prosody.extract_features_file(file_audio, static=False, plots=True, fmt="torch")
-    >>> prosody.extract_features_file(file_audio, static=False, plots=False, fmt="kaldi", kaldi_file="./test")
-
-    >>> path_audio="../audios/"
-    >>> features1=prosody.extract_features_path(path_audio, static=True, plots=False, fmt="npy")
-    >>> features2=prosody.extract_features_path(path_audio, static=True, plots=False, fmt="csv")
-    >>> features3=prosody.extract_features_path(path_audio, static=False, plots=True, fmt="torch")
-    >>> prosody.extract_features_path(path_audio, static=False, plots=False, fmt="kaldi", kaldi_file="./test.ark")
-
+    Examples
+    --------
+    >>> articulation = Articulation(temp_dir='/tmp/disvoice_tempfiles')
+    >>> file_audio = "../audios/OSR_us_000_0030_8k.wav"
+    >>> features_static = articulation.extract_features_file(
+    ...     file_audio, 
+    ...     static=True, 
+    ...     plots=False, 
+    ...     fmt="npy"
+    ... )
+    >>> features_dynamic = articulation.extract_features_file(
+    ...     file_audio, 
+    ...     static=False, 
+    ...     plots=False, 
+    ...     fmt="npy"
+    ... )
     """
-
-    def __init__(self):
+    def __init__(self, temp_dir : str):
         self.pitch_method = "rapt"
         self.size_frame = 0.02
         self.step = 0.01
@@ -156,6 +107,8 @@ class Prosody:
         self.namef0d = ["f0coef"+str(i) for i in range(6)]
         self.nameEd = ["Ecoef"+str(i) for i in range(6)]
         self.head_dyn = self.namef0d+self.nameEd+["Voiced duration"]
+
+        self.temp_dir = temp_dir
 
     def plot_pros(self, data_audio, fs, F0, segmentsV, segmentsU, F0_features):
         """Plots of the prosody features
@@ -318,10 +271,9 @@ class Prosody:
         if self.pitch_method == 'praat':
             name_audio = audio.split('/')
             temp_uuid = 'prosody'+name_audio[-1][0:-4]
-            if not os.path.exists(PATH+'/../tempfiles/'):
-                os.makedirs(PATH+'/../tempfiles/')
-            temp_filename_f0 = PATH+'/../tempfiles/tempF0'+temp_uuid+'.txt'
-            temp_filename_vuv = PATH+'/../tempfiles/tempVUV'+temp_uuid+'.txt'
+            
+            temp_filename_f0 = self.temp_dir + '/tempF0'+temp_uuid+'.txt'
+            temp_filename_vuv = self.temp_dir + '/tempVUV'+temp_uuid+'.txt'
             praat_functions.praat_vuv(audio, temp_filename_f0, temp_filename_vuv,
                                       time_stepF0=self.step, minf0=self.minf0, maxf0=self.maxf0)
 
@@ -386,10 +338,8 @@ class Prosody:
         if self.pitch_method == 'praat':
             name_audio = audio.split('/')
             temp_uuid = 'prosody'+name_audio[-1][0:-4]
-            if not os.path.exists(PATH+'/../tempfiles/'):
-                os.makedirs(PATH+'/../tempfiles/')
-            temp_filename_f0 = PATH+'/../tempfiles/tempF0'+temp_uuid+'.txt'
-            temp_filename_vuv = PATH+'/../tempfiles/tempVUV'+temp_uuid+'.txt'
+            temp_filename_f0 = self.temp_dir + '/tempF0'+temp_uuid+'.txt'
+            temp_filename_vuv = self.temp_dir + '/tempVUV'+temp_uuid+'.txt'
             praat_functions.praat_vuv(audio, temp_filename_f0, temp_filename_vuv,
                                       time_stepF0=self.step, minf0=self.minf0, maxf0=self.maxf0)
 
