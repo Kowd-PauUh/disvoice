@@ -1,2 +1,0 @@
-disvoice
-notebooks_examples
