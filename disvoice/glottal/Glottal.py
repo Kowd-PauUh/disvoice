@@ -15,7 +15,6 @@ sys.path.append(os.path.join(PATH, '..'))
 sys.path.append(PATH)
 from script_mananger import script_manager
 from utils import dynamic2static, get_dict, save_dict_kaldimat
-plt.rcParams["font.family"] = "Times New Roman"
 from GCI import iaif, se_vq_varf0, get_vq_params
 
 

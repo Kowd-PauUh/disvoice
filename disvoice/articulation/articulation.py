@@ -1,107 +1,69 @@
-
-# -*- coding: utf-8 -*-
-"""
-Created on Jul 21 2017
-
-@author: J. C. Vasquez-Correa
-"""
-
-from scipy.io.wavfile import read
 import os
 import sys
+
+from tqdm import tqdm
+import pandas as pd
 import numpy as np
+from scipy.io.wavfile import read
 import matplotlib.pyplot as plt
-plt.rcParams["font.family"] = "Times New Roman"
 import matplotlib.mlab as mlab
 import pysptk
-import pandas as pd
 import torch
-from tqdm import tqdm
-PATH = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(PATH, '..'))
-sys.path.append(PATH)
+
 import disvoice.praat.praat_functions as praat_functions
 from disvoice.script_mananger import script_manager
-from articulation_functions import extract_transitions, get_transition_segments
-
-from utils import dynamic2statict_artic, save_dict_kaldimat, get_dict, fill_when_empty
-
-
+from disvoice.articulation.articulation_functions import extract_transitions, get_transition_segments
+from disvoice.utils import dynamic2statict_artic, save_dict_kaldimat, get_dict, fill_when_empty
 
 
 class Articulation:
     """
-
     Compute articulation features from continuous speech.
 
     122 descriptors are computed:
-
     1-22. Bark band energies in onset transitions (22 BBE).
-
     23-34. Mel frequency cepstral coefficients in onset transitions (12 MFCC onset)
-
     35-46. First derivative of the MFCCs in onset transitions (12 DMFCC onset)
-
     47-58. Second derivative of the MFCCs in onset transitions (12 DDMFCC onset)
-
     59-80. Bark band energies in offset transitions (22 BBE).
-
     81-92. MFCCC in offset transitions (12 MFCC offset)
-
     93-104. First derivative of the MFCCs in offset transitions (12 DMFCC offset)
-
     105-116. Second derivative of the MFCCs in offset transitions (12 DMFCC offset)
-
     117. First formant Frequency
-
     118. First Derivative of the first formant frequency
-
     119. Second Derivative of the first formant frequency
-
     120. Second formant Frequency
-
     121. First derivative of the Second formant Frequency
-
     122. Second derivative of the Second formant Frequency
 
     Static or dynamic matrices can be computed:
-    
     Static matrix is formed with 488 features formed with (122 descriptors) x (4 functionals: mean, std, skewness, kurtosis)
-    
     Dynamic matrix are formed with the 58 descriptors (22 BBEs, 12 MFCC, 12DMFCC, 12 DDMFCC ) computed for frames of 40 ms with a time-shift of 20 ms in onset transitions.
-
     The first two frames of each recording are not considered for dynamic analysis to be able to stack the derivatives of MFCCs
 
-
-    Notes:
+    Notes
+    -----
     1. The first two frames of each recording are not considered for dynamic analysis to be able to stack the derivatives of MFCCs
     2. The fundamental frequency is computed the PRAAT algorithm. To use the RAPT method,  change the "self.pitch method" variable in the class constructor.
 
-    Script is called as follows
-
-    >>> python articulation.py <file_or_folder_audio> <file_features> <static (true or false)> <plots (true or false)> <format (csv, txt, npy, kaldi, torch)>
-
-    Examples command line:
-
-    >>> python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulation_featuresDDKst.txt" "true" "true" txt
-    >>> python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulation_featuresDDKst.csv" "true" "true" csv
-    >>> python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulation_featuresDDKst.pt" "true" "true" torch
-    >>> python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulation_featuresDDKdyn.txt" "false" "true" txt
-    >>> python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulation_featuresDDKdyn.csv" "false" "true" csv
-    >>> python articulation.py "../audios/001_ddk1_PCGITA.wav" "articulation_featuresDDKdyn.pt" "false" "true" torch
-    
-    Examples directly in Python
-
-    >>> articulation=Articulation()
-    >>> file_audio="../audios/001_ddk1_PCGITA.wav"
-    >>> features1=articulation.extract_features_file(file_audio, static=True, plots=True, fmt="npy")
-    >>> features2=articulation.extract_features_file(file_audio, static=True, plots=True, fmt="dataframe")
-    >>> features3=articulation.extract_features_file(file_audio, static=False, plots=True, fmt="torch")
-    >>> articulation.extract_features_file(file_audio, static=False, plots=False, fmt="kaldi", kaldi_file="./test")
-
+    Examples
+    --------
+    >>> articulation = Articulation(temp_dir='/tmp/disvoice_tempfiles')
+    >>> file_audio = "../audios/OSR_us_000_0030_8k.wav"
+    >>> features_static = articulation.extract_features_file(
+    ...     file_audio, 
+    ...     static=True, 
+    ...     plots=False, 
+    ...     fmt="npy"
+    ... )
+    >>> features_dynamic = articulation.extract_features_file(
+    ...     file_audio, 
+    ...     static=False, 
+    ...     plots=False, 
+    ...     fmt="npy"
+    ... )
     """
-
-    def __init__(self):
+    def __init__(self, temp_dir):
         self.pitch_method="rapt"
         self.sizeframe=0.04
         self.step=0.02
@@ -128,8 +90,7 @@ class Articulation:
         for k in ["avg", "std", "skewness", "kurtosis"]:
             for h in self.head:
                 self.head_st.append(k+" "+h)
-        if not os.path.exists(PATH+'/../../tempfiles/'):
-            os.makedirs(PATH+'/../../tempfiles/')
+        self.temp_dir = temp_dir
 
     def plot_art(self, data_audio,fs,F0,F1,F2,segmentsOn,segmentsOff):
         """Plots of the articulation features
@@ -293,7 +254,7 @@ class Articulation:
         name_audio=audio.split('/')
         temp_uuid='artic'+name_audio[-1][0:-4]
 
-        temp_filename=PATH+'/../../tempfiles/tempFormants'+temp_uuid+'.txt'
+        temp_filename=self.temp_dir+'/tempFormants'+temp_uuid+'.txt'
         praat_functions.praat_formants(audio, temp_filename,self.sizeframe,self.step)
         [F1, F2]=praat_functions.decodeFormants(temp_filename)
         os.remove(temp_filename)
@@ -367,8 +328,8 @@ class Articulation:
         if self.pitch_method == 'praat':
             name_audio=audio.split('/')
             temp_uuid='articulation'+name_audio[-1][0:-4]
-            temp_filename_vuv=PATH+'/../../tempfiles/tempVUV'+temp_uuid+'.txt'
-            temp_filename_f0=PATH+'/../../tempfiles/tempF0'+temp_uuid+'.txt'
+            temp_filename_vuv=self.temp_dir + '/tempVUV'+temp_uuid+'.txt'
+            temp_filename_f0=self.temp_dir + '/tempF0'+temp_uuid+'.txt'
             praat_functions.praat_vuv(audio, temp_filename_f0, temp_filename_vuv, time_stepF0=self.step, minf0=self.minf0, maxf0=self.maxf0)
             F0,_=praat_functions.decodeF0(temp_filename_f0,len(data_audio)/float(fs),self.step)
             segmentsFull,segmentsOn,segmentsOff=praat_functions.read_textgrid_trans(temp_filename_vuv,data_audio,fs,self.sizeframe)
@@ -441,13 +402,3 @@ class Articulation:
         if fmt=="kaldi":
             dictX=get_dict(Features, ids)
             save_dict_kaldimat(dictX, kaldi_file)
-
-
-if __name__=="__main__":
-
-    if len(sys.argv)!=6:
-        print("python articulation.py <file_or_folder_audio> <file_features> <static (true, false)> <plots (true,  false)> <format (csv, txt, npy, kaldi, torch)>")
-        sys.exit()
-
-    articulation=Articulation()
-    script_manager(sys.argv, articulation)
