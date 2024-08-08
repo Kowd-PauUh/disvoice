@@ -13,7 +13,6 @@ install_requires = [
     'librosa',
     'pandas',
     'pysptk',
-    'phonet',
     'scipy',
     'scikit_learn',
 ]

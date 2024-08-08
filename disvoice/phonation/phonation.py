@@ -1,30 +1,18 @@
-
-# -*- coding: utf-8 -*-
-"""
-Created on Jul 21 2017
-
-@author: J. C. Vasquez-Correa
-"""
-
-from scipy.io.wavfile import read
 import os
 import sys
+
+from tqdm import tqdm
+import pandas as pd
 import numpy as np
+import pysptk
+import torch
+from scipy.io.wavfile import read
 import matplotlib.pyplot as plt
 
-import pysptk
-
-import pandas as pd
-PATH = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(PATH, '..'))
-sys.path.append(PATH)
-from phonation_functions import jitter_env, get_log_energy, shimmer_env, APQ, PPQ
-
-from utils import dynamic2statict, save_dict_kaldimat,get_dict
-import praat.praat_functions as praat_functions
-from script_mananger import script_manager
-import torch
-from tqdm import tqdm
+from disvoice.phonation.phonation_functions import jitter_env, get_log_energy, shimmer_env, APQ, PPQ
+from disvoice.utils import dynamic2statict, save_dict_kaldimat,get_dict
+import disvoice.praat.praat_functions as praat_functions
+from disvoice.script_mananger import script_manager
 
 
 class Phonation:
@@ -34,62 +22,41 @@ class Phonation:
     For continuous speech, the features are computed over voiced segments
 
     Seven descriptors are computed:
-
     1. First derivative of the fundamental Frequency
-
     2. Second derivative of the fundamental Frequency
-
     3. Jitter
-
     4. Shimmer
-
     5. Amplitude perturbation quotient
-
     6. Pitch perturbation quotient
-
     7. Logaritmic Energy
 
     Static or dynamic matrices can be computed:
-
     Static matrix is formed with 29 features formed with (seven descriptors) x (4 functionals: mean, std, skewness, kurtosis) + degree of Unvoiced
-
     Dynamic matrix is formed with the seven descriptors computed for frames of 40 ms.
 
-    Notes:
-
+    Notes
+    -----
     1. In dynamic features the first 11 frames of each recording are not considered to be able to stack the APQ and PPQ descriptors with the remaining ones.
     2. The fundamental frequency is computed the RAPT algorithm. To use the PRAAT method,  change the "self.pitch method" variable in the class constructor.
 
-    Script is called as follows
-
-    >>> python phonation.py <file_or_folder_audio> <file_features> <static (true or false)> <plots (true or false)> <format (csv, txt, npy, kaldi, torch)>
-
-    Examples command line:
-
-    >>> python phonation.py "../audios/001_a1_PCGITA.wav" "phonationfeaturesAst.txt" "true" "true" "txt"
-    >>> python phonation.py "../audios/098_u1_PCGITA.wav" "phonationfeaturesUst.csv" "true" "true" "csv"
-    >>> python phonation.py "../audios/098_u1_PCGITA.wav" "phonationfeaturesUdyn.pt" "false" "true" "torch"
-
-    >>> python phonation.py "../audios/" "phonationfeaturesst.txt" "true" "false" "txt"
-    >>> python phonation.py "../audios/" "phonationfeaturesst.csv" "true" "false" "csv"
-    >>> python phonation.py "../audios/" "phonationfeaturesdyn.pt" "false" "false" "torch"
-
-    Examples directly in Python
-
-    >>> from disvoice.phonation import Phonation
-    >>> phonation=Phonation()
-    >>> file_audio="../audios/001_a1_PCGITA.wav"
-    >>> features=phonation.extract_features_file(file_audio, static, plots=True, fmt="numpy")
-    >>> features2=phonation.extract_features_file(file_audio, static, plots=True, fmt="dataframe")
-    >>> features3=phonation.extract_features_file(file_audio, dynamic, plots=True, fmt="torch")
-    
-    >>> path_audios="../audios/"
-    >>> features1=phonation.extract_features_path(path_audios, static, plots=False, fmt="numpy")
-    >>> features2=phonation.extract_features_path(path_audios, static, plots=False, fmt="torch")
-    >>> features3=phonation.extract_features_path(path_audios, static, plots=False, fmt="dataframe")
-
+    Examples
+    --------
+    >>> phonation = Phonation(temp_dir='/tmp/disvoice_tempfiles')
+    >>> file_audio = "../audios/OSR_us_000_0030_8k.wav"
+    >>> features_static = phonation.extract_features_file(
+    ...     file_audio, 
+    ...     static=True, 
+    ...     plots=False, 
+    ...     fmt="npy"
+    ... )
+    >>> features_dynamic = articulation.extract_features_file(
+    ...     file_audio, 
+    ...     static=False, 
+    ...     plots=False, 
+    ...     fmt="npy"
+    ... )
     """
-    def __init__(self):
+    def __init__(self, temp_dir : str):
         self.pitch_method="rapt"
         self.size_frame=0.04
         self.size_step=0.02
@@ -98,9 +65,8 @@ class Phonation:
         self.voice_bias=-0.2
         self.energy_thr_percent=0.025
         self.head_dyn=["DF0", "DDF0", "Jitter", "Shimmer", "apq", "ppq", "logE"]
+        self.temp_dir = temp_dir
         
-        if not os.path.exists(PATH+'/../tempfiles/'):
-            os.makedirs(PATH+'/../tempfiles/')
         self.head_st=[]
         for k in ["avg", "std", "skewness", "kurtosis"]:
             for h in self.head_dyn:
@@ -246,8 +212,8 @@ class Phonation:
         if self.pitch_method == 'praat':
             name_audio=audio.split('/')
             temp_uuid='phon'+name_audio[-1][0:-4]
-            temp_filename_vuv=PATH+'/../tempfiles/tempVUV'+temp_uuid+'.txt'
-            temp_filename_f0=PATH+'/../tempfiles/tempF0'+temp_uuid+'.txt'
+            temp_filename_vuv=self.temp_dir + '/tempVUV'+temp_uuid+'.txt'
+            temp_filename_f0=self.temp_dir + '/tempF0'+temp_uuid+'.txt'
             praat_functions.praat_vuv(audio, temp_filename_f0, temp_filename_vuv, time_stepF0=self.size_step, minf0=self.minf0, maxf0=self.maxf0)
             F0,_=praat_functions.decodeF0(temp_filename_f0,len(data_audio)/float(fs),self.size_step)
             os.remove(temp_filename_vuv)
