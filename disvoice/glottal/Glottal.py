@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -155,7 +156,7 @@ class Glottal:
         glottal = np.zeros(len(x))
 
         if GCIs is None:
-            sys.warn("not enought voiced segments were found to compute GCI")
+            logging.warning("not enought voiced segments were found to compute GCI")
             return glottal, g_iaif, GCIs
 
         start = 0

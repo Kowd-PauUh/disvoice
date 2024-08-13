@@ -1,3 +1,4 @@
+import logging
 import sys
 from scipy.io.wavfile import read
 import matplotlib.pyplot as plt
@@ -209,7 +210,7 @@ def get_vq_params(gf, gfd, fs, GCI):
     glot_shift=np.round(0.5/1000*fs)
     
     if len(GCI) <= 1:
-        sys.warn("not enough voiced segments were found to compute GCI")
+        logging.warning("not enough voiced segments were found to compute GCI")
         return NAQ, QOQ, T1, T2, H1H2, HRF
     start=0
     stop=int(GCI[0])
